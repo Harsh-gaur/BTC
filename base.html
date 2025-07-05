@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CryptoInsight Pro - Advanced Bitcoin price prediction platform powered by machine learning and real-time market analysis">
+    <meta name="keywords" content="bitcoin, cryptocurrency, price prediction, machine learning, market analysis">
+    <meta name="author" content="CryptoInsight Pro">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#367588">
+    <meta property="og:title" content="CryptoInsight Pro">
+    <meta property="og:description" content="Advanced Bitcoin price prediction platform">
+    <meta property="og:type" content="website">
+    <title>{% block title %}CryptoInsight Pro{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #367588;
+            --secondary-color: #4A8BA0;
+            --accent-color: #2C5D6F;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --dark-bg: #0F1C20;
+            --card-bg: #1A2C32;
+            --card-hover: #233943;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Base Styles */
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1A2C32 100%);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Modern Navigation */
+        .navbar {
+            background: rgba(15, 28, 32, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 80%;
+        }
+
+        /* Modern Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(54, 117, 136, 0.2);
+            background: var(--card-hover);
+        }
+
+        /* Modern Buttons */
+        .btn {
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(54, 117, 136, 0.3);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Custom Components */
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .card {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Additional Styles */
+        {% block additional_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <a class="navbar-brand" href="/" aria-label="CryptoInsight Pro Home">
+                <i class="fab fa-bitcoin me-2" aria-hidden="true"></i>
+                CryptoInsight Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="/" aria-current="{% if active_page == 'home' %}page{% endif %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'predictions' %}active{% endif %}" href="/predictions" aria-current="{% if active_page == 'predictions' %}page{% endif %}">Predictions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'analysis' %}active{% endif %}" href="/analysis" aria-current="{% if active_page == 'analysis' %}page{% endif %}">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'news' %}active{% endif %}" href="/news" aria-current="{% if active_page == 'news' %}page{% endif %}">News</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'about' %}active{% endif %}" href="/about" aria-current="{% if active_page == 'about' %}page{% endif %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'contact' %}active{% endif %}" href="/contact" aria-current="{% if active_page == 'contact' %}page{% endif %}">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main style="margin-top: 80px;" role="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="footer-title">About CryptoInsight Pro</h5>
+                    <p class="text-secondary">Advanced Bitcoin price prediction platform powered by machine learning and real-time market analysis.</p>
+                    <div class="social-links mt-3">
+                        <a href="#" aria-label="Twitter" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="GitHub" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="Discord" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5 class="footer-title">Quick Links</h5>
+                    <a href="/" class="footer-link">Home</a>
+                    <a href="/predictions" class="footer-link">Predictions</a>
+                    <a href="/analysis" class="footer-link">Analysis</a>
+                    <a href="/news" class="footer-link">News</a>
+                    <a href="/about" class="footer-link">About</a>
+                    <a href="/contact" class="footer-link">Contact</a>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5 class="footer-title">Resources</h5>
+                    <a href="/api-docs" class="footer-link">API Documentation</a>
+                    <a href="/faq" class="footer-link">FAQ</a>
+                    <a href="/terms" class="footer-link">Terms of Service</a>
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="footer-title">Newsletter</h5>
+                    <p class="text-secondary">Subscribe to our newsletter for the latest updates and insights.</p>
+                    <form class="mt-3" id="newsletter-form" novalidate>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="newsletter-email" placeholder="Enter your email" required aria-label="Email address for newsletter" style="border-radius: 25px 0 0 25px;">
+                            <button class="btn btn-primary" type="submit" style="border-radius: 0 25px 25px 0;">Subscribe</button>
+                        </div>
+                        <div class="invalid-feedback" id="newsletter-feedback"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <p class="text-secondary mb-0">&copy; 2024 CryptoInsight Pro. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Newsletter form validation
+        document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('newsletter-email');
+            const feedback = document.getElementById('newsletter-feedback');
+            
+            if (!email.value || !email.value.includes('@')) {
+                feedback.textContent = 'Please enter a valid email address';
+                feedback.style.display = 'block';
+                email.classList.add('is-invalid');
+                return;
+            }
+            
+            // Here you would typically send the email to your server
+            feedback.textContent = 'Thank you for subscribing!';
+            feedback.style.display = 'block';
+            feedback.style.color = 'var(--success-color)';
+            email.classList.remove('is-invalid');
+            email.value = '';
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

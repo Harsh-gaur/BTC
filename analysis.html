@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Market Analysis - CryptoInsight Pro{% endblock %}
+
+{% block additional_styles %}
+    <style>
+        .analysis-header {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(54, 117, 136, 0.1) 0%, rgba(44, 93, 111, 0.2) 100%);
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 4rem;
+        }
+
+        .analysis-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            overflow-x: auto;
+        }
+
+        .analysis-nav button {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .analysis-nav button::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-nav button.active {
+            color: var(--text-primary);
+        }
+
+        .analysis-nav button.active::after {
+            transform: scaleX(1);
+        }
+
+        .indicator-card {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .indicator-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .market-sentiment {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .sentiment-bar {
+            flex-grow: 1;
+            height: 8px;
+            background: var(--card-hover);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .sentiment-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .news-card {
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateX(5px);
+        }
+
+        .news-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .correlation-table th,
+        .correlation-table td {
+            padding: 1rem;
+            text-align: center;
+            border-color: var(--border-color);
+        }
+
+        .correlation-positive {
+            color: #4CAF50;
+        }
+
+        .correlation-negative {
+            color: #F44336;
+        }
+
+        .volume-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .volume-bar {
+            flex-grow: 1;
+            height: 24px;
+            background: var(--card-hover);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .volume-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Analysis Header -->
+    <section class="analysis-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="section-title text-start mb-4">Market Analysis</h1>
+                    <p class="text-secondary mb-4">Comprehensive technical and fundamental analysis of Bitcoin market trends, indicators, and correlations.</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-3">Market Summary</h5>
+                            <div class="market-sentiment">
+                                <span>Bullish</span>
+                                <div class="sentiment-bar">
+                                    <div class="sentiment-level" style="width: 75%;"></div>
+                                </div>
+                                <span>Bearish</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <div>
+                                    <small class="text-secondary">24h Volume</small>
+                                    <div class="fw-bold">$42.8B</div>
+                                </div>
+                                <div>
+                                    <small class="text-secondary">Market Cap</small>
+                                    <div class="fw-bold">$892.5B</div>
+                                </div>
+                                <div>
+                                    <small class="text-secondary">Dominance</small>
+                                    <div class="fw-bold">48.3%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Analysis Navigation -->
+        <div class="analysis-nav">
+            <button class="active" data-tab="technical">Technical Analysis</button>
+            <button data-tab="fundamental">Fundamental Analysis</button>
+            <button data-tab="onchain">On-Chain Metrics</button>
+            <button data-tab="correlation">Market Correlation</button>
+            <button data-tab="sentiment">Market Sentiment</button>
+            <button data-tab="news">News Impact</button>
+        </div>
+
+        <!-- Technical Analysis Section -->
+        <div id="technical" class="analysis-section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Price Action Analysis</h5>
+                            <div class="chart-container">
+                                <canvas id="technicalChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Key Levels</h5>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Resistance 1</span>
+                                <span class="fw-bold">$48,500</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Resistance 2</span>
+                                <span class="fw-bold">$52,000</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Support 1</span>
+                                <span class="fw-bold">$44,200</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Support 2</span>
+                                <span class="fw-bold">$41,800</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card indicator-card">
+                        <div class="card-body">
+                            <h5>RSI (14)</h5>
+                            <div class="indicator-value">62.8</div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 62.8%;"></div>
+                            </div>
+                            <p class="text-secondary mt-2 mb-0">Neutral territory</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card indicator-card">
+                        <div class="card-body">
+                            <h5>MACD</h5>
+                            <div class="indicator-value">245.8</div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-success">Bullish</span>
+                                <span>Signal: 125.3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card indicator-card">
+                        <div class="card-body">
+                            <h5>Stochastic</h5>
+                            <div class="indicator-value">82.5</div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: 82.5%;"></div>
+                            </div>
+                            <p class="text-secondary mt-2 mb-0">Overbought zone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volume Analysis -->
+        <section class="mb-5">
+            <h2 class="section-title">Volume Analysis</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="volumeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-4">Volume Profile</h5>
+                            <div class="volume-profile">
+                                <span>$45,000</span>
+                                <div class="volume-bar">
+                                    <div class="volume-level" style="width: 85%;"></div>
+                                </div>
+                                <span>2.5B</span>
+                            </div>
+                            <div class="volume-profile">
+                                <span>$46,000</span>
+                                <div class="volume-bar">
+                                    <div class="volume-level" style="width: 65%;"></div>
+                                </div>
+                                <span>1.8B</span>
+                            </div>
+                            <div class="volume-profile">
+                                <span>$47,000</span>
+                                <div class="volume-bar">
+                                    <div class="volume-level" style="width: 45%;"></div>
+                                </div>
+                                <span>1.2B</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Correlation -->
+        <section class="mb-5">
+            <h2 class="section-title">Asset Correlation</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table correlation-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>1D Correlation</th>
+                                    <th>7D Correlation</th>
+                                    <th>30D Correlation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>S&P 500</td>
+                                    <td class="correlation-positive">0.85</td>
+                                    <td class="correlation-positive">0.72</td>
+                                    <td class="correlation-positive">0.68</td>
+                                </tr>
+                                <tr>
+                                    <td>Gold</td>
+                                    <td class="correlation-negative">-0.25</td>
+                                    <td class="correlation-negative">-0.18</td>
+                                    <td class="correlation-negative">-0.22</td>
+                                </tr>
+                                <tr>
+                                    <td>USD Index</td>
+                                    <td class="correlation-negative">-0.65</td>
+                                    <td class="correlation-negative">-0.58</td>
+                                    <td class="correlation-negative">-0.52</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market News -->
+        <section class="mb-5">
+            <h2 class="section-title">Latest Market News</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card news-card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h5 class="mb-0">Bitcoin ETF Approval Expected Soon</h5>
+                                <span class="news-date">2h ago</span>
+                            </div>
+                            <p class="mb-0">Major financial institutions are preparing for potential Bitcoin ETF approval, which could bring significant institutional investment.</p>
+                        </div>
+                    </div>
+                    <div class="card news-card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h5 class="mb-0">Mining Difficulty Reaches All-Time High</h5>
+                                <span class="news-date">5h ago</span>
+                            </div>
+                            <p class="mb-0">Bitcoin mining difficulty has increased by 8%, reaching a new all-time high and indicating strong network security.</p>
+                        </div>
+                    </div>
+                    <div class="card news-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h5 class="mb-0">Major Bank Adds Bitcoin to Treasury</h5>
+                                <span class="news-date">8h ago</span>
+                            </div>
+                            <p class="mb-0">A leading financial institution has announced the addition of Bitcoin to its treasury reserves.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-4">News Sentiment</h5>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Positive</span>
+                                <span class="text-success">65%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 65%;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Neutral</span>
+                                <span class="text-warning">25%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: 25%;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Negative</span>
+                                <span class="text-danger">10%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-danger" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Technical Analysis Chart
+        const technicalCtx = document.getElementById('technicalChart').getContext('2d');
+        new Chart(technicalCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Price',
+                    data: [45000, 46500, 44800, 47200, 48500, 47800, 49000],
+                    borderColor: '#367588',
+                    backgroundColor: 'rgba(54, 117, 136, 0.1)',
+                    borderWidth: 2,
+                    fill: true
+                }, {
+                    label: 'EMA(20)',
+                    data: [44500, 45000, 45500, 46000, 46500, 47000, 47500],
+                    borderColor: '#4CAF50',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Volume Chart
+        const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+        new Chart(volumeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Volume',
+                    data: [2.5, 1.8, 3.2, 2.1, 2.8, 1.5, 2.2],
+                    backgroundColor: 'rgba(54, 117, 136, 0.2)',
+                    borderColor: '#367588',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tab Navigation
+        document.querySelectorAll('.analysis-nav button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.analysis-nav button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // Add active class to clicked button
+                button.classList.add('active');
+                // Show corresponding section
+                const tabId = button.dataset.tab;
+                // Implement tab switching logic here
+            });
+        });
+    });
+</script>
+{% endblock %} 

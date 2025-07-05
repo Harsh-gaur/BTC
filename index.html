@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block title %}CryptoInsight Pro - Advanced Bitcoin Price Prediction{% endblock %}
+
+{% block additional_styles %}
+    <style>
+        :root {
+            --primary-color: #367588;
+            --secondary-color: #4A8BA0;
+            --accent-color: #2C5D6F;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --dark-bg: #0F1C20;
+            --card-bg: #1A2C32;
+            --card-hover: #233943;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1A2C32 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(15, 28, 32, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(54, 117, 136, 0.2);
+            background: var(--card-hover);
+        }
+
+        .price-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-left-color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(54, 117, 136, 0.3);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .price-change.positive {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .price-change.negative {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+
+        .card-header {
+            background: rgba(54, 117, 136, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem;
+        }
+
+        .card-header h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .prediction-item {
+            background: rgba(54, 117, 136, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .prediction-item:hover {
+            background: rgba(54, 117, 136, 0.1);
+            border-left-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .metric-value {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                margin-bottom: 20px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        .hero-section {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, rgba(54, 117, 136, 0.1) 0%, rgba(44, 93, 111, 0.2) 100%);
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, rgba(54, 117, 136, 0.05) 0%, rgba(44, 93, 111, 0.1) 100%);
+            padding: 4rem 0;
+            margin: 4rem 0;
+            border-radius: 30px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .testimonial-card {
+            padding: 2rem;
+            margin: 1rem;
+            text-align: center;
+        }
+
+        .testimonial-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            border: 3px solid var(--primary-color);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(54, 117, 136, 0.1) 0%, rgba(44, 93, 111, 0.2) 100%);
+            border-radius: 30px;
+            margin: 4rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">Predict Bitcoin's Future with AI Precision</h1>
+                    <p class="hero-subtitle">Advanced machine learning algorithms combined with real-time market analysis to provide accurate Bitcoin price predictions.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/predictions" class="btn btn-primary">Get Predictions</a>
+                        <a href="/about" class="btn btn-outline-light">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="heroChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container">
+        <h2 class="section-title">Why Choose CryptoInsight Pro</h2>
+        <div class="feature-grid">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Powered Analysis</h3>
+                <p>Advanced machine learning models trained on extensive historical data.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Real-time Updates</h3>
+                <p>Continuous monitoring and analysis of market movements.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Reliable Predictions</h3>
+                <p>High accuracy predictions based on multiple data points.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Advanced Analytics</h3>
+                <p>Comprehensive technical and fundamental analysis tools.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-value">99.94%</div>
+                        <p>Training Accuracy</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-value">89.57%</div>
+                        <p>Test Accuracy</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-value">532+</div>
+                        <p>Data Points</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-value">24/7</div>
+                        <p>Real-time Updates</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Predictions -->
+    <section class="container">
+        <h2 class="section-title">Latest Predictions</h2>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Next 7 Days Forecast</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="predictions-list">
+                            Loading predictions...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="section-title">Start Predicting Today</h2>
+            <p class="mb-4">Get access to advanced Bitcoin price predictions and analytics.</p>
+            <a href="/predictions" class="btn btn-primary btn-lg">Try It Now</a>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Hero Chart
+    const createHeroChart = () => {
+        const ctx = document.getElementById('heroChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(54, 117, 136, 0.2)');
+        gradient.addColorStop(1, 'rgba(54, 117, 136, 0)');
+
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Bitcoin Price Trend',
+                    data: [45000, 52000, 48000, 61000, 58000, 64000],
+                    borderColor: '#367588',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#4A8BA0',
+                    pointBorderColor: '#367588',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    // Initialize charts when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        createHeroChart();
+        // Fetch and display real predictions
+        fetch('/api/predict?days=7')
+            .then(response => response.json())
+            .then(data => {
+                const predictionsHtml = data.map(pred => `
+                    <div class="prediction-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>${pred.date}</span>
+                            <span class="fw-bold">$${pred.price.toLocaleString()}</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar" style="width: ${Math.random() * 100}%; background: var(--primary-color);"></div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('predictions-list').innerHTML = predictionsHtml;
+            })
+            .catch(error => {
+                console.error('Error fetching predictions:', error);
+                document.getElementById('predictions-list').innerHTML = 'Error loading predictions.';
+            });
+    });
+</script>
+{% endblock %} 

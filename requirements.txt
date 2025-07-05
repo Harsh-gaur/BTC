@@ -1,0 +1,10 @@
+flask>=2.3.3
+yfinance>=0.2.36
+pandas>=2.1.4
+numpy>=1.26.3
+scikit-learn>=1.4.0
+ta>=0.10.2
+requests>=2.31.0
+python-dateutil>=2.8.2
+Werkzeug>=3.0.1
+gunicorn>=21.2.0 

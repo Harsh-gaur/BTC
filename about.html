@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}About - BTC Price Predictor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">About BTC Price Predictor</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Our Mission</h5>
+                    <p class="card-text">
+                        BTC Price Predictor is a sophisticated tool that uses machine learning algorithms to predict Bitcoin price movements.
+                        Our ensemble model combines multiple prediction techniques to provide accurate forecasts.
+                    </p>
+                    
+                    <h5 class="card-title mt-4">How It Works</h5>
+                    <p class="card-text">
+                        We use a combination of:
+                        <ul>
+                            <li>Random Forest Regression</li>
+                            <li>Gradient Boosting</li>
+                            <li>Support Vector Regression</li>
+                            <li>Lasso Regression</li>
+                        </ul>
+                        These models analyze various technical indicators and market data to generate predictions.
+                    </p>
+                    
+                    <h5 class="card-title mt-4">Disclaimer</h5>
+                    <p class="card-text">
+                        Cryptocurrency trading involves substantial risk. Our predictions are for informational purposes only
+                        and should not be considered as financial advice.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
